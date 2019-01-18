@@ -1,14 +1,14 @@
-function EdgesCoordinate = extractEdges(binImage)
+function EdgesCoordinate = extractShadowEdges(binShadowImage, mangoPosition)
 
 loop = 1;
 
-for x = 1:size(binImage,2)                      
+for x = 1:length(mangoPosition)         
     flag = 0;
-    for y = 1:size(binImage,1)   
-        pixValue = binImage(y,x);
+    for y = 1:size(binShadowImage,1)   
+        pixValue = binShadowImage(y,mangoPosition(x));
         if flag == 0 && pixValue > 0
             flag = 1;
-            EdgesCoordinate(loop,1) = x;
+            EdgesCoordinate(loop,1) = mangoPosition(x);
             EdgesCoordinate(loop,2) = y;
         end
         if flag == 1 && pixValue < 1 

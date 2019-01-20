@@ -10,6 +10,7 @@ for x = 1:length(mangoPosition)
             flag = 1;
             EdgesCoordinate(loop,1) = mangoPosition(x);
             EdgesCoordinate(loop,2) = y;
+            EdgesCoordinate(loop,3) = y;
         end
         if flag == 1 && pixValue < 1 
             EdgesCoordinate(loop,3) = y;

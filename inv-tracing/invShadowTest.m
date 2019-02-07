@@ -1,21 +1,22 @@
 clear;
 clc;
+close all;
 
 A = [904, 477, 0;
      1215, 399, 0;
      904, 477, 800];
     
-B = [2850, 472, 0;
+B = [2850, 477, 0;
      3336, 399, 0;
-     2850, 472, 800];
+     2850, 477, 800];
  
 C = [2850, 2277, 0;
      3336, 2377, 0;
      2850, 2277, 800];
  
-D = [904, 2269, 0;
+D = [904, 2277, 0;
      1215, 2377, 0;
-     904, 2269, 800];
+     904, 2277, 800];
 
 A = img2cart(A);
 B = img2cart(B);
@@ -29,6 +30,7 @@ D = img2cart(D);
 % plot3(D(:,1), D(:,2), D(:,3),'o-','LineWidth',2);
 % grid on
 
+% plot vector from shadow edges to top of object
 plot3(A(2:3,1), A(2:3,2), A(2:3,3), 'o-','LineWidth',5);
 hold on
 plot3(B(2:3,1), B(2:3,2), B(2:3,3),'o-','LineWidth',5);
@@ -36,10 +38,11 @@ plot3(C(2:3,1), C(2:3,2), C(2:3,3),'o-','LineWidth',5);
 plot3(D(2:3,1), D(2:3,2), D(2:3,3),'o-','LineWidth',5);
 grid on
 
-% xlabel('X')
-% ylabel('Y')
-% zlabel('Z')
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
 
+% cal shadow length from bottom of object to edges of shadow
 s_a = shadowVectorLength(A);
 s_b = shadowVectorLength(B);
 s_c = shadowVectorLength(C);
@@ -60,24 +63,50 @@ unitVectRay_D = calUnitVector(D(3,:), D(2,:));
 % plot3(unitVectRay_D(1), unitVectRay_D(2), unitVectRay_D(3),'o-','LineWidth',2);
 % grid on
 
-s = 11000;
+% manual tracing by add scalar value
+s = 12000;
 p1 = A(2,:) + s*unitVectRay_A;
 p2 = B(2,:) + s*unitVectRay_B;
 p3 = C(2,:) + s*unitVectRay_C;
 p4 = D(2,:) + s*unitVectRay_D;
 
-% p = A(2,:) + unitVectRay_A;
- 
-plot3([A(2,1) p1(1)], [A(2,2) p1(2)], [A(2,3) p1(3)], '-', 'LineWidth', 2);
-plot3([B(2,1) p2(1)], [B(2,2) p2(2)], [B(2,3) p2(3)], '-', 'LineWidth', 2);
-plot3([C(2,1) p3(1)], [C(2,2) p3(2)], [C(2,3) p3(3)], '-', 'LineWidth', 2);
-plot3([D(2,1) p4(1)], [D(2,2) p4(2)], [D(2,3) p4(3)], '-', 'LineWidth', 2);
+% plot line with manual tracing
+plot3([A(2,1) p1(1)], [A(2,2) p1(2)], [A(2,3) p1(3)], '-', 'LineWidth', 1);
+plot3([B(2,1) p2(1)], [B(2,2) p2(2)], [B(2,3) p2(3)], '-', 'LineWidth', 1);
+plot3([C(2,1) p3(1)], [C(2,2) p3(2)], [C(2,3) p3(3)], '-', 'LineWidth', 1);
+plot3([D(2,1) p4(1)], [D(2,2) p4(2)], [D(2,3) p4(3)], '-', 'LineWidth', 1);
 
+% compute intersect position via 2-rays tracing
+p_IT_ab = rayIntersect(A(2,:), B(2,:), unitVectRay_A, unitVectRay_B);
+p_IT_bc = rayIntersect(B(2,:), C(2,:), unitVectRay_B, unitVectRay_C);
+p_IT_cd = rayIntersect(C(2,:), D(2,:), unitVectRay_C, unitVectRay_D);
+p_IT_ad = rayIntersect(A(2,:), D(2,:), unitVectRay_A, unitVectRay_D);
+
+% p = A(2,:) + unitVectRay_A;
+
+% plot 4 intersection points
+plot3(p_IT_ab(1), p_IT_ab(2), p_IT_ab(3), '*', 'LineWidth', 5);
+plot3(p_IT_bc(1), p_IT_bc(2), p_IT_bc(3), '*', 'LineWidth', 5);
+plot3(p_IT_cd(1), p_IT_cd(2), p_IT_cd(3), '*', 'LineWidth', 5);
+plot3(p_IT_ad(1), p_IT_ad(2), p_IT_ad(3), '*', 'LineWidth', 5);
+
+% new figure plot, just 2 sides: bc, cd for preparing finding the base
+% anglel
+figure;
+plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1);
+hold on
+plot3([C(2,1) p_IT_cd(1) D(2,1)], [C(2,2) p_IT_cd(2) D(2,2)], [C(2,3) p_IT_cd(3) D(2,3)], '*-', 'LineWidth', 1);
+grid on;
+
+
+
+% function for convert image unit to cartesian coordinate
 function newCoordinate = img2cart(coordinate)
     newCoordinate = coordinate;
     newCoordinate(:,2) = 2648 - coordinate(:,2);
 end
 
+% function for calculate shadow length
 function ret = shadowVectorLength(position)
     ret = [abs(position(1,1)-position(3,1)), abs(position(1,2)-position(3,2))];
 end

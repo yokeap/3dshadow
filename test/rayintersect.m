@@ -34,5 +34,7 @@ t = -((u_dot_v/denom) * w_dot_u) + ((u_dot_u/denom) * w_dot_v);
 
 p = (o1 + s*unitVect1) + (o2 + t*unitVect2);
 
+p = p/2;
+
 
 

@@ -31,12 +31,13 @@ D = img2cart(D);
 % grid on
 
 % plot vector from shadow edges to top of object
+figure('Name','Inverese Ray Tracing');
+hold on;
 plot3(A(2:3,1), A(2:3,2), A(2:3,3), 'o-','LineWidth',5);
-hold on
 plot3(B(2:3,1), B(2:3,2), B(2:3,3),'o-','LineWidth',5);
 plot3(C(2:3,1), C(2:3,2), C(2:3,3),'o-','LineWidth',5);
 plot3(D(2:3,1), D(2:3,2), D(2:3,3),'o-','LineWidth',5);
-grid on
+grid on;
 
 xlabel('X')
 ylabel('Y')
@@ -75,12 +76,18 @@ plot3([A(2,1) p1(1)], [A(2,2) p1(2)], [A(2,3) p1(3)], '-', 'LineWidth', 1);
 plot3([B(2,1) p2(1)], [B(2,2) p2(2)], [B(2,3) p2(3)], '-', 'LineWidth', 1);
 plot3([C(2,1) p3(1)], [C(2,2) p3(2)], [C(2,3) p3(3)], '-', 'LineWidth', 1);
 plot3([D(2,1) p4(1)], [D(2,2) p4(2)], [D(2,3) p4(3)], '-', 'LineWidth', 1);
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
 
 % compute intersect position via 2-rays tracing
 p_IT_ab = rayIntersect(A(2,:), B(2,:), unitVectRay_A, unitVectRay_B);
 p_IT_bc = rayIntersect(B(2,:), C(2,:), unitVectRay_B, unitVectRay_C);
 p_IT_cd = rayIntersect(C(2,:), D(2,:), unitVectRay_C, unitVectRay_D);
 p_IT_ad = rayIntersect(A(2,:), D(2,:), unitVectRay_A, unitVectRay_D);
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
 
 % p = A(2,:) + unitVectRay_A;
 
@@ -89,14 +96,46 @@ plot3(p_IT_ab(1), p_IT_ab(2), p_IT_ab(3), '*', 'LineWidth', 5);
 plot3(p_IT_bc(1), p_IT_bc(2), p_IT_bc(3), '*', 'LineWidth', 5);
 plot3(p_IT_cd(1), p_IT_cd(2), p_IT_cd(3), '*', 'LineWidth', 5);
 plot3(p_IT_ad(1), p_IT_ad(2), p_IT_ad(3), '*', 'LineWidth', 5);
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+
+
+% Horizontal ray angle figure plot
+figure('Name','Azimuth ray angle');
+hold on;
+view(90,0)  % YZ View
+plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1);
+plot3([A(2,1) p_IT_ad(1) D(2,1)], [A(2,2) p_IT_ad(2) D(2,2)], [A(2,3) p_IT_ad(3) D(2,3)], '*-', 'LineWidth', 1);
+grid on;
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+
+
+% vertical ray angle figure plot
+figure('Name','Elevation ray pattern');
+view(0,0)   % XZ View
+hold on;
+plot3([A(2,1) p_IT_ab(1) B(2,1)], [A(2,2) p_IT_ab(2) B(2,2)], [A(2,3) p_IT_ab(3) B(2,3)], '*-', 'LineWidth', 1);
+plot3([C(2,1) p_IT_cd(1) D(2,1)], [C(2,2) p_IT_cd(2) D(2,2)], [C(2,3) p_IT_cd(3) D(2,3)], '*-', 'LineWidth', 1);
+grid on;
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
 
 % new figure plot, just 2 sides: bc, cd for preparing finding the base
 % anglel
-figure;
-plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1);
+figure('Name','Virtual Light source radiation azimuth and altitude angles');
 hold on
+plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1);
+plot3([A(2,1) p_IT_ad(1) D(2,1)], [A(2,2) p_IT_ad(2) D(2,2)], [A(2,3) p_IT_ad(3) D(2,3)], '*-', 'LineWidth', 1);
 plot3([C(2,1) p_IT_cd(1) D(2,1)], [C(2,2) p_IT_cd(2) D(2,2)], [C(2,3) p_IT_cd(3) D(2,3)], '*-', 'LineWidth', 1);
+plot3([A(2,1) p_IT_ab(1) B(2,1)], [A(2,2) p_IT_ab(2) B(2,2)], [A(2,3) p_IT_ab(3) B(2,3)], '*-', 'LineWidth', 1);
 grid on;
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
 
 
 

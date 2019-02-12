@@ -1,4 +1,4 @@
-function [position] = rayIntersect(origin1, origin2, unitVect1, unitVect2)
+function [position] = rayintersect(origin1, origin2, unitVect1, unitVect2)
     %RAYINTERSECT Summary of this function goes here
     %   compute the position of 2-rays intersection
     %   Author: Siwakorn Sukprasertchai

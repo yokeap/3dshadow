@@ -4,14 +4,25 @@
 % 
 % T = [-1.568660138072978e+02,-67.838402390008700,1.068218666557448e+03];
 
+clear;
+clc;
 
-dat = ginput(4);
+load('cameraParams.mat');
+
+img = imread('undistorted.jpg');
+
+%input from user
+imshow(img);
+hold on;
+colormap(gray)
+axis image;
+axis ij ;
+dat=ginput(4);
 datw = [1 1 1 1]';
-
 Data=[dat datw]';
-aplot(Data, 'g+')
-w=50 ; %mm 5 cm
-h=50 ; %mm 5 cm
+plot(Data, 'g+')
+w=265.6108 ; %mm 5 cm
+h=262.7235 ; %mm 5 cm
 
 %paper in the real world
 DataR=[ 0,0,h,h;...
@@ -37,5 +48,5 @@ PR=H*P
 delx=((PR(1,1)/PR(3,1))-(PR(1,2)/PR(3,2)));
 dely=((PR(2,1)/PR(3,1))-(PR(2,2)/PR(3,2)));
 Lenght = sqrt(delx^2+dely^2)
-aplot(P,'g.-')
+plot(P,'g.-')
 text(p(1,1),p(1,2),[num2str(Lenght)]);

@@ -7,6 +7,10 @@
 clear;
 clc;
 
+H = [ -0.000001171027520  -0.000569119373972   0.402795558322037
+  -0.000571860777008  -0.000007045512653   0.915276425974051
+  -0.000000000072476  -0.000000017684098  -0.004914395139275];
+
 load('cameraParams.mat');
 
 img = imread('undistorted.jpg');
@@ -17,26 +21,26 @@ hold on;
 colormap(gray)
 axis image;
 axis ij ;
-dat=ginput(4);
-datw = [1 1 1 1]';
-Data=[dat datw]';
-plot(Data, 'g+')
-w=265.6108 ; %mm 5 cm
-h=262.7235 ; %mm 5 cm
-
-%paper in the real world
-DataR=[ 0,0,h,h;...
-       0,w,w,0;...
-       1,1,1,1];
-%compute the homography relating the two planes
-X=diag(-DataR(1,:));
-Y=diag(-DataR(2,:));
-Q=Data';
-A=[ Q,zeros(size(Q)),X*Q;...
-        zeros(size(Q)),Q,Y*Q]
-[U,S,V]=svd(A,0);
-h=V(:,end);
-H=reshape(h,3,3)';
+% dat=ginput(4);
+% datw = [1 1 1 1]';
+% Data=[dat datw]';
+% plot(Data, 'g+')
+% w=265.6108 ; %mm 5 cm
+% h=262.7235 ; %mm 5 cm
+% 
+% %paper in the real world
+% DataR=[ 0,0,h,h;...
+%        0,w,w,0;...
+%        1,1,1,1];
+% %compute the homography relating the two planes
+% X=diag(-DataR(1,:));
+% Y=diag(-DataR(2,:));
+% Q=Data';
+% A=[ Q,zeros(size(Q)),X*Q;...
+%         zeros(size(Q)),Q,Y*Q]
+% [U,S,V]=svd(A,0);
+% h=V(:,end);
+% H=reshape(h,3,3)';
 
 %Measure the coins diameter 1
 p=ginput(2)

@@ -1,3 +1,8 @@
+% extract edges of sample with maximum amplitude and lowest amplitude
+% return is (x, ymin, ymax) in image coordinate
+% this algorithm is running from 0,0 and scan start in column and row
+% innner loop
+
 function EdgesCoordinate = extractEdges(binImage)
 
 loop = 1;

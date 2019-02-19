@@ -1,0 +1,54 @@
+close all;
+clear;
+clc;
+
+homographyMatrix = ...
+[ -0.000001171027520  -0.000569119373972   0.402795558322037
+  -0.000571860777008  -0.000007045512653   0.915276425974051
+  -0.000000000072476  -0.000000017684098  -0.004914395139275];
+
+% virtual light source position
+virLightPos = [-2.298030767150990e+02,1.469862104150302e+02,4.943304818724096e+02];
+
+A = [-0.344940596426928,-0.030344488603148,0;   %bottom of blue tower corner
+     28.500421768196030,-18.857746363838732,0;  %ray casted from top of blue tower corner
+     -0.344940596426928,-0.030344488603148,52]; %height of top of blue tower corner 
+  
+B = [0.197484825228561,2.648525869040325e+02,0;
+     29.111778283175088,2.802209834378628e+02,0;
+     0.197484825228561,2.648525869040325e+02,52];
+ 
+C = [2.833449765829964e+02,2.660276503092134e+02,0;
+     3.429544363039715e+02,2.799133485893511e+02,0;
+     2.833449765829964e+02,2.660276503092134e+02,52];
+ 
+D = [2.828118364137633e+02,1.035175223803500,0;
+     3.437996501867177e+02,-16.227331116713668,0;
+     2.828118364137633e+02,1.035175223803500,52];
+ 
+% azimuth triangle (XY) or top view in radian
+azimuth_a = 1.3456;
+azimuth_b = 1.2907;
+azimuth_c = 0.5053;     % this angle is used for ray casting in top view
+ 
+% elevation triangle (XZ) or side view in radian
+elevation_a = 0.7113;
+elevation_b = 2.0523;
+elevation_c = 0.3780;
+
+ % load instrincsic camera calibrated parameters
+load('../calibration/cameraParams.mat');
+% load computed homography matrix
+
+% % load distorted image
+% imOrig = imread('../SampleImages/background.JPG');
+% % get undistorting image and offset origin
+% [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
+% figure; imshow(im); title('Undistorted Image');
+% axis image;
+% axis ij ;
+% 
+
+
+
+

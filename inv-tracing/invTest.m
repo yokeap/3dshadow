@@ -30,7 +30,6 @@ plot3(D(:,1), D(:,2), D(:,3),'o-');
 grid on
 
 
-
 function newCoordinate = img2cart(coordinate)
     newCoordinate = coordinate;
     newCoordinate(:,2) = 2648 - coordinate(:,2);

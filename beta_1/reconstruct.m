@@ -107,16 +107,6 @@ binSegmentImage = imfill(binSegmentImage,'holes');
 binSegmentImage  = medfilt2(binSegmentImage ,[3 3]);
 figure; imshow(binSegmentImage);
 
-% 
-% %Extracting of edges of sample and shadow
-% binSampleEdgeImage = edge(binSegmentImage,'Canny');   
-% binSegmentShadowEdgeImage = edge(binSegmentShadowImage, 'Canny');
-% figure; imshow(binSampleEdgeImage);
-% figure; imshow(binSegmentShadowEdgeImage);
-% 
-% %find the non-zero element (return [x,y])
-% [SampleEdgesCol, SampleEdgesRow] = find(binSampleEdgeImage);
-% [SampleShadowEdgesCol, SampleShadowEdgesRow] = find(binSegmentShadowEdgeImage);
 
 % extract edges of sample with maximum amplitude and lowest amplitude
 % return is (x, ymin, ymax, 1) in homogeneous image coordinate
@@ -132,10 +122,10 @@ sampleEdges = extractEdges(binSegmentImage);
 %     end
 
 % after getting ymax and ymin in each of x coordinate, create center plane
-middlePointClound(:,1) = sampleEdges(:,1);    % x coordinate in 3D
-middlePointClound(:,2) = sampleEdges(:,2);    % y min edges in 3D
-middlePointClound(:,3) = sampleEdges(:,3);    % y max edge in 3D
-middlePointClound(:,4) = 0;                     % z coordinate (this plane is ref plane)
+sampleRefPointClound(:,1) = sampleEdges(:,1);    % x coordinate in 3D
+sampleRefPointClound(:,2) = sampleEdges(:,2);    % y min edges in 3D
+sampleRefPointClound(:,3) = sampleEdges(:,3);    % y max edge in 3D
+sampleRefPointClound(:,4) = 0;                     % z coordinate (this plane is ref plane)
 % in world coordinate the image axis and world axis is converted. y=x, x=y
 % of point clound
 % middlePointClound(:,1) = sampleHalfMinEdgesWorld(:,2);    % x coordinate in 3D
@@ -143,13 +133,12 @@ middlePointClound(:,4) = 0;                     % z coordinate (this plane is re
 % middlePointClound(:,3) = sampleHalfMaxEdgesWorld(:,1);    % y max edge in 3D
 % middlePointClound(:,4) = 0;                     % z coordinate (this plane is ref plane)
 
-plot3(middlePointClound(:,1), middlePointClound(:,2), middlePointClound(:,4), '.', 'LineWidth', 1);
+plot3(sampleRefPointClound(:,1), sampleRefPointClound(:,2), sampleRefPointClound(:,4), '.', 'LineWidth', 1);
 hold on
 xlabel('X')
 ylabel('Y')
 zlabel('Z')
-plot3(middlePointClound(:,1), middlePointClound(:,3), middlePointClound(:,4), '.', 'LineWidth', 1);
-
+plot3(sampleRefPointClound(:,1), sampleRefPointClound(:,3), sampleRefPointClound(:,4), '.', 'LineWidth', 1);
 
 % find centroid point via image moment.
 %which was estimated from first order image moments centroid
@@ -157,9 +146,8 @@ plot3(middlePointClound(:,1), middlePointClound(:,3), middlePointClound(:,4), '.
 % algorithm to find the centroid line from centroid point.
 % finding reference horizontal vector in right half plane from centroid
 % point.
-%unitVectRefHor = calUnitVector(PD(2,:), PC(2,:));   
 
-% finding reference horizontal vector in left half plane from centroid
+% finding reference horizontal line in left half plane from centroid
 % point.
 n=1;     % for reference loop
     for i = int32(centroid(1)):-1:1
@@ -169,6 +157,7 @@ n=1;     % for reference loop
             break;
         end
     end
+    %right half plane.
     for i = int32(centroid(1)):size(binSegmentImage,2)
         centroidLine(n,1:3) = [i, centroid(2) 0];
         n = n+1;
@@ -186,6 +175,10 @@ n=1;     % for reference loop
 %coefficients = polyfit([double(centroidLineL(1)), double(centroidLineR(1))], [double(centroidLineL(2)), double(centroidLineR(2))], 1)
 %polyMiddleLine = [sampleEdges(:,1) polyval(coefficients, sampleEdges(:,1)) zeros(size(sampleEdges(:,1),1),1)];
 plot3(centroidLine(:,1), centroidLine(:,2), centroidLine(:,3), '.', 'LineWidth', 1);
+%hold off;
+
+% after got sample edges and centroid line 
+% the shadow edges were extract refer to reference plane.
 
 % Shadow segmentation,
 %---------------------------------------------------------------------
@@ -197,4 +190,15 @@ binSegmentShadowImage = bwareafilt(binSegmentShadowImage, 1);
 binSegmentShadowImage = imfill(binSegmentShadowImage,'holes');
 % apply median filtering with 10x10 kernel for smoothing edge
 binSegmentShadowImage  = medfilt2(binSegmentShadowImage ,[3 3]);
-figure; imshow(binSegmentShadowImage);
+%figure; imshow(binSegmentShadowImage);
+
+% shadow edges extraction.
+sampleShadowEdges = extractEdges(binSegmentShadowImage);
+
+% after getting ymax and ymin in each of x coordinate, create center plane
+shadowRefPointClound(:,1) = sampleShadowEdges(:,1);    % x coordinate in 3D
+shadowRefPointClound(:,2) = sampleShadowEdges(:,2);    % y min edges in 3D
+shadowRefPointClound(:,3) = sampleShadowEdges(:,3);    % y max edge in 3D
+shadowRefPointClound(:,4) = 0;                   % z coordinate (this plane is ref plane)
+
+plot3(shadowRefPointClound(:,1), shadowRefPointClound(:,3), shadowRefPointClound(:,4), '.', 'LineWidth', 1);

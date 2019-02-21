@@ -9,23 +9,16 @@ homographyMatrix = ...
 
 % virtual light source position
 virLightPos = [-2.298030767150990e+02,1.469862104150302e+02,4.943304818724096e+02];
+virLightPosIMG = [2.868181414399634e+03,-1.279352211841624e+03,4.871044729212234e+02];
 
 % Reference tower position in image coordinate.
-PA = [1.591724358974359e+03,1.427596153846153e+03;
-      6.980448717948707e+02,9.553269230769220e+02;
-      1,1]';
+PA = [1.591619136460555e+03,1.426180970149254e+03;7.014912046908303e+02,9.517694562899778e+02;1,1]';
   
-PB = [3.876211538461539e+03,3.995980769230770e+03;
-      6.980448717948707e+02,9.553269230769220e+02;
-      1,1]';
+PB = [3.873817430703625e+03,4.005319562899787e+03;7.014912046908303e+02,9.517694562899778e+02;1,1]';
 
-PC = [3.876211538461539e+03,3.995980769230770e+03;
-      3.177711538461538e+03,3.705583333333333e+03;
-      1,1]';
+PC = [3.873817430703625e+03,3.992593550106611e+03;3.174579690831556e+03,3.700588219616204e+03;1,1]';
 
-PD = [1.565108974358974e+03,1.409852564102564e+03;
-      3.177711538461538e+03,3.705583333333333e+03;
-      1,1]';
+PD = [1.570409115138593e+03,1.413454957356077e+03;3.174579690831556e+03,3.713314232409381e+03;1,1]';
 
 % Refernce tower position in World coordinate.
 HA = [-0.344940596426928,-0.030344488603148,0;   % bottom of blue tower corner
@@ -45,14 +38,14 @@ HD = [2.828118364137633e+02,1.035175223803500,0;
      2.828118364137633e+02,1.035175223803500,52];
  
 % azimuth triangle (XY) or top view in radian
-azimuth_a = 1.3456;
-azimuth_b = 1.2907;
-azimuth_c = 0.5053;     % this angle is used for ray casting in top view
+azimuth_a = 1.3537;
+azimuth_b = 1.2823;
+azimuth_c = 0.5056;     % this angle is used for ray casting in top view
  
 % elevation triangle (XZ) or side view in radian
-elevation_a = 0.7113;
-elevation_b = 2.0523;
-elevation_c = 0.3780;
+elevation_a = 0.3231;
+elevation_b = 2.8158;
+elevation_c = 0.0027;
 
  % load intrinsic camera calibrated parameters
 load('../calibration/cameraParams.mat');
@@ -76,6 +69,7 @@ diffImage = imsubtract(imgBg, imgSample);
 [diffImageBW, maskedRGBImage] = createMaskBW(diffImage);
 diffImageBW = bwareafilt(diffImageBW, 1);
 diffImageBW = imfill(diffImageBW,'holes');
+figure('Name','Differential Image');
 imshow(diffImageBW);
 
 % create blank blackgroumd image (background color is according to color of object).
@@ -91,8 +85,8 @@ for i=1:size(imgSample,2)
         end      
     end
 end
- 
-figure;
+
+figure('Name','Green Screen Image');
 imshow(grennScreenImage);
 
 % Sample segmentation,
@@ -105,7 +99,8 @@ binSegmentImage = bwareafilt(binSegmentImage, 1);
 binSegmentImage = imfill(binSegmentImage,'holes');
 % apply median filtering with 10x10 kernel for smoothing edge
 binSegmentImage  = medfilt2(binSegmentImage ,[3 3]);
-figure; imshow(binSegmentImage);
+figure('Name','Sample Segmented');
+imshow(binSegmentImage);
 
 
 % extract edges of sample with maximum amplitude and lowest amplitude
@@ -133,6 +128,7 @@ sampleRefPointClound(:,4) = 0;                     % z coordinate (this plane is
 % middlePointClound(:,3) = sampleHalfMaxEdgesWorld(:,1);    % y max edge in 3D
 % middlePointClound(:,4) = 0;                     % z coordinate (this plane is ref plane)
 
+figure('Name','3D Points Clound');
 plot3(sampleRefPointClound(:,1), sampleRefPointClound(:,2), sampleRefPointClound(:,4), '.', 'LineWidth', 1);
 hold on
 xlabel('X')
@@ -202,3 +198,39 @@ shadowRefPointClound(:,3) = sampleShadowEdges(:,3);    % y max edge in 3D
 shadowRefPointClound(:,4) = 0;                   % z coordinate (this plane is ref plane)
 
 plot3(shadowRefPointClound(:,1), shadowRefPointClound(:,3), shadowRefPointClound(:,4), '.', 'LineWidth', 1);
+% plot virtual light position with respect to tower c and d
+plot3([PC(2,1) virLightPosIMG(1) PD(2,1)], [PC(2,2) virLightPosIMG(2) PD(2,2)], [PC(2,3) virLightPosIMG(3) PD(2,3)], '*-', 'LineWidth', 1, 'Color', 'r');
+grid on;
+% test;
+% figure('Name','projective sample and shadow');
+% plot(sampleShadowEdges(:,1), sampleShadowEdges(:,2), '.', 'LineWidth', 1);
+% hold on;
+% axis ij;
+% plot(centroidLine(:,1), centroidLine(:,2), '.', 'LineWidth', 1);
+% plot(virLightPosIMG(1), virLightPosIMG(:,2), 'o', 'LineWidth', 5);
+% create blank blackgroumd image (background color is according to color of object).
+% 
+% perspectiveImg = zeros(size(imgSample,1), size(imgSample,2), 3,'uint8');
+% for i=1:size(binSegmentShadowImage,2)
+%     for j=1:size(binSegmentShadowImage,1)
+%         if(binSegmentShadowImage(j, i) > 0)
+%             perspectiveImg(j,i,1:3) = [255 255 255];
+%         end
+%         
+%     end
+% end
+% 
+% figure;
+% imshow(perspectiveImg);
+%     
+
+
+% find unit vector of centroid line from tail
+centroidHeadUnitVect = unitVector2D(double(centroidLine(size(centroidLine,1),1:2)), double(centroidLine(1,1:2)));
+pVect = [double(centroidLine(size(centroidLine,1),1)) double(centroidLine(size(centroidLine,1),2))] + 100*centroidHeadUnitVect;
+shadowUnitVect = unitVector2D([double(shadowRefPointClound(154,1)) double(shadowRefPointClound(154,3))], virLightPosIMG(1:2));
+sVect = [shadowRefPointClound(154,1), shadowRefPointClound(154,3)] + 1000*(shadowUnitVect*-1);          % -1 for inverse the ray (not sure).
+p_IT_shadowCentroid = rayintersect([double(shadowRefPointClound(154,1)), double(shadowRefPointClound(154,3))], double(centroidLine(size(centroidLine,1),1:2)), shadowUnitVect, centroidHeadUnitVect);
+plot3([double(shadowRefPointClound(154,1)) p_IT_shadowCentroid(1)], [double(shadowRefPointClound(154,3)) p_IT_shadowCentroid(2)], [0 0], '*-', 'LineWidth', 1, 'Color', 'g');
+
+%plot3([double(centroidLine(size(centroidLine,1),1)), centroidHeadUnitVect(1)], [double(centroidLine(size(centroidLine,1),2)), centroidHeadUnitVect(2)], [0 0], '*-', 'LineWidth', 1, 'Color', 'r');

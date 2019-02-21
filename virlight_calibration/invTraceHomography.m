@@ -128,8 +128,8 @@ plot3(p_IT_cd(1), p_IT_cd(2), p_IT_cd(3), '*', 'LineWidth', 5, 'Color', 'b');
 plot3(p_IT_ad(1), p_IT_ad(2), p_IT_ad(3), '*', 'LineWidth', 5, 'Color', 'y');
 
 
-% Horizontal ray angle figure plot
-figure('Name','Azimuth ray');
+% Vertical ray angle figure plot
+figure('Name','Elevation ray');
 hold on;
 view(90,0)  % YZ View
 plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1, 'Color', 'r');
@@ -140,8 +140,8 @@ ylabel('Y')
 zlabel('Z')
 
 
-% vertical ray angle figure plot
-figure('Name','Elevation ray');
+% Horizontal ray angle figure plot
+figure('Name','Azimuth ray');
 view(0,0)   % XZ View
 hold on;
 plot3([A(2,1) p_IT_ab(1) B(2,1)], [A(2,2) p_IT_ab(2) B(2,2)], [A(2,3) p_IT_ab(3) B(2,3)], '*-', 'LineWidth', 1, 'Color', 'b');

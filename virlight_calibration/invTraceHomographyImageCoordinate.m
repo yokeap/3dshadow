@@ -13,22 +13,22 @@ clear;
 close all;
 clc;
 % 
-% input_A = [1.591843786982249e+03,1.431742011834320e+03;6.950591715976320e+02,9.540473372781057e+02];
-% input_B = [3.875648520710061e+03,4.002788165680476e+03;6.950591715976320e+02,9.540473372781057e+02];
-% input_C = [3.875648520710061e+03,4.002788165680476e+03;3.176636686390533e+03,3.704030769230770e+03];
-% input_D = [1.563590532544380e+03,1.408197633136095e+03;3.176636686390533e+03,3.704030769230770e+03];
+% input_A = [1.587773992049972e+03,1.434127200454288e+03;6.952998296422484e+02,9.528841567291311e+02];
+% input_B = [3.878918796138559e+03,3.996413401476434e+03;6.952998296422484e+02,9.528841567291311e+02];
+% input_C = [3.878918796138559e+03,3.996413401476434e+03;3.176243611584327e+03,3.704969335604770e+03];
+% input_D = [1.569697898921068e+03,1.416051107325384e+03;3.176243611584327e+03,3.704969335604770e+03];
 
-input_A = [1.591619136460555e+03,1.426180970149254e+03;7.014912046908303e+02,9.517694562899778e+02];
-input_B = [3.873817430703625e+03,4.005319562899787e+03;7.014912046908303e+02,9.517694562899778e+02];
-input_C = [3.873817430703625e+03,3.992593550106611e+03;3.174579690831556e+03,3.700588219616204e+03];
-input_D = [1.570409115138593e+03,1.413454957356077e+03;3.174579690831556e+03,3.713314232409381e+03];
+% input_A = [1.591619136460555e+03,1.426180970149254e+03;7.014912046908303e+02,9.517694562899778e+02];
+% input_B = [3.873817430703625e+03,4.005319562899787e+03;7.014912046908303e+02,9.517694562899778e+02];
+% input_C = [3.873817430703625e+03,3.992593550106611e+03;3.174579690831556e+03,3.700588219616204e+03];
+% input_D = [1.570409115138593e+03,1.413454957356077e+03;3.174579690831556e+03,3.713314232409381e+03];
 
 % load instrincsic camera calibrated parameters
 load('../calibration/cameraParams.mat');
 % load computed homography matrix
 
 % load distorted image
-imOrig = imread('../SampleImages/DSC_0309.JPG');
+imOrig = imread('../SampleImages/background/01-03-2019.JPG');
 % get undistorting image and offset origin
 [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
 figure; imshow(im); title('Undistorted Image');
@@ -37,10 +37,10 @@ axis ij ;
 
 % get the coordinate of shadow ray
 % hold on;
-% input_A = ginput(2)';
-% input_B = ginput(2)'; 
-% input_C = ginput(2)';
-% input_D = ginput(2)';
+input_A = ginput(2)';
+input_B = ginput(2)'; 
+input_C = ginput(2)';
+input_D = ginput(2)';
 
 input_B = nearestPointY(input_A,input_B);
 input_C = nearestPointX(input_B,input_C);
@@ -136,37 +136,37 @@ xlabel('X')
 ylabel('Y')
 zlabel('Z')
 
-virLightPos = p_IT_cd;
+virLightPosIMG = (p_IT_cd + p_IT_ab)/2;
 
 % azimuth triangle angle calculation
-az_u = computeMag(virLightPos(1:2), C(2,1:2));
-az_v = computeMag(virLightPos(1:2), D(2,1:2));
+az_u = computeMag(virLightPosIMG(1:2), C(2,1:2));
+az_v = computeMag(virLightPosIMG(1:2), D(2,1:2));
 az_w = computeMag(C(2,1:2), D(2,1:2));
 azimuth_a = acos((az_u^2 + az_w^2 - az_v^2)/(2 * az_u * az_w));
-azimuth_b = acos((az_w^2 + az_v^2 - az_u^2)/(2 * az_w * az_v));
-azimuth_c = acos((az_v^2 + az_u^2 - az_w^2)/(2 * az_v * az_u));
+azimuth_b = acos((az_v^2 + az_w^2 - az_u^2)/(2 * az_v * az_w));
+azimuth_c = acos((az_u^2 + az_v^2 - az_w^2)/(2 * az_v * az_u));
 
 
 %2d plot (top view) of azimuth angle
 figure('Name','2D top view azimuth angle');
-plot([C(2,1) virLightPos(1) D(2,1)], [D(2,2) virLightPos(2) C(2,2)], '*-', 'LineWidth', 1);
+plot([C(2,1) virLightPosIMG(1) D(2,1)], [D(2,2) virLightPosIMG(2) C(2,2)], '*-', 'LineWidth', 1);
 grid on;
 xlabel('X')
 ylabel('Y')
 
 % elevation triangle angle calculation
-ev_u = computeMag([virLightPos(1) virLightPos(3)], [D(2,1) D(2,3)]);
-ev_v = computeMag([virLightPos(1) virLightPos(3)], [A(2,1) A(2,3)]);
-ev_w = computeMag([D(2,1) D(2,3)], [A(2,1) A(2,3)]);
+ev_u = computeMag([virLightPosIMG(2) virLightPosIMG(3)], [D(2,2) D(2,3)]);
+ev_v = computeMag([virLightPosIMG(2) virLightPosIMG(3)], [A(2,2) A(2,3)]);
+ev_w = computeMag([D(2,2) D(2,3)], [A(2,2) A(2,3)]);
 elevation_a = acos((ev_u^2 + ev_w^2 - ev_v^2)/(2 * ev_u * ev_w));
-elevation_b = acos((ev_w^2 + ev_v^2 - ev_u^2)/(2 * ev_w * ev_v));
-elevation_c = acos((ev_v^2 + ev_u^2 - ev_w^2)/(2 * ev_v * ev_u));
+elevation_b = acos((ev_v^2 + ev_w^2 - ev_u^2)/(2 * ev_v * ev_w));
+elevation_c = acos((ev_u^2 + ev_v^2 - ev_w^2)/(2 * ev_v * ev_u));
 
 %2d plot (side view) of elevation angle
 figure('Name','2D side view elevation angle');
-plot([A(2,1) virLightPos(1) D(2,1)], [A(2,3) virLightPos(3) D(2,3)], '*-', 'LineWidth', 1);
+plot([A(2,2) virLightPosIMG(2) D(2,2)], [A(2,3) virLightPosIMG(3) D(2,3)], '*-', 'LineWidth', 1);
 grid on;
-xlabel('X')
+xlabel('Y')
 ylabel('Z')
 
     % nearing the x coordinat make them perfectly square

@@ -107,7 +107,7 @@ imshow(binSegmentImage);
 % return is (x, ymin, ymax, 1) in homogeneous image coordinate
 % this algorithm is running from 0,0 and scan start in column and row
 % innner loop
-sampleEdges = extractEdges(binSegmentImage);
+[sampleEdgesUpper, sampleEdgesLower] = extractEdges(binSegmentImage);
 
     %Transform each half of sample edges to world unit via homography
     %transform
@@ -117,9 +117,9 @@ sampleEdges = extractEdges(binSegmentImage);
 %     end
 
 % after getting ymax and ymin in each of x coordinate, create center plane
-sampleRefPointClound(:,1) = sampleEdges(:,1);    % x coordinate in 3D
-sampleRefPointClound(:,2) = sampleEdges(:,2);    % y min edges in 3D
-sampleRefPointClound(:,3) = sampleEdges(:,3);    % y max edge in 3D
+sampleRefPointClound(:,1) = sampleEdgesUpper(:,1);    % x coordinate in 3D
+sampleRefPointClound(:,2) = sampleEdgesUpper(:,2);    % y min edges in 3D
+sampleRefPointClound(:,3) = sampleEdgesLower(:,2);    % y max edge in 3D
 sampleRefPointClound(:,4) = 0;                     % z coordinate (this plane is ref plane)
 % in world coordinate the image axis and world axis is converted. y=x, x=y
 % of point clound
@@ -127,6 +127,31 @@ sampleRefPointClound(:,4) = 0;                     % z coordinate (this plane is
 % middlePointClound(:,2) = sampleHalfMinEdgesWorld(:,1);    % y min edges in 3D
 % middlePointClound(:,3) = sampleHalfMaxEdgesWorld(:,1);    % y max edge in 3D
 % middlePointClound(:,4) = 0;                     % z coordinate (this plane is ref plane)
+
+% after got sample edges and centroid line 
+% the shadow edges were extract refer to reference plane.
+
+% Shadow segmentation,
+%---------------------------------------------------------------------
+% color thresholding (HSV model)
+[binSegmentShadowImage,MaskedSegmentShadowRGBImage] = shadowMask(grennScreenImage);
+% filtering for only 1 largest object
+binSegmentShadowImage = bwareafilt(binSegmentShadowImage, 1);
+% fill hole
+binSegmentShadowImage = imfill(binSegmentShadowImage,'holes');
+% apply median filtering with 10x10 kernel for smoothing edge
+binSegmentShadowImage  = medfilt2(binSegmentShadowImage ,[3 3]);
+figure('Name','Shadow Segmented');
+imshow(binSegmentShadowImage);
+
+% shadow edges extraction.
+[sampleShadowEdgesUpper, sampleShadowEdgesLower] = extractEdges(binSegmentShadowImage);
+
+% after getting ymax and ymin in each of x coordinate, create center plane
+shadowRefPointClound(:,1) = sampleShadowEdgesUpper(:,1);    % x coordinate in 3D
+shadowRefPointClound(:,2) = sampleShadowEdgesUpper(:,2);    % y min edges in 3D
+shadowRefPointClound(:,3) = sampleShadowEdgesLower(:,2);    % y max edge in 3D
+shadowRefPointClound(:,4) = 0;                         % z coordinate (this plane is ref plane)
 
 figure('Name','3D Points Clound');
 plot3(sampleRefPointClound(:,1), sampleRefPointClound(:,2), sampleRefPointClound(:,4), '.', 'LineWidth', 1);
@@ -173,29 +198,7 @@ n=1;     % for reference loop
 plot3(centroidLine(:,1), centroidLine(:,2), centroidLine(:,3), '.', 'LineWidth', 1);
 %hold off;
 
-% after got sample edges and centroid line 
-% the shadow edges were extract refer to reference plane.
 
-% Shadow segmentation,
-%---------------------------------------------------------------------
-% color thresholding (HSV model)
-[binSegmentShadowImage,MaskedSegmentShadowRGBImage] = shadowMask(grennScreenImage);
-% filtering for only 1 largest object
-binSegmentShadowImage = bwareafilt(binSegmentShadowImage, 1);
-% fill hole
-binSegmentShadowImage = imfill(binSegmentShadowImage,'holes');
-% apply median filtering with 10x10 kernel for smoothing edge
-binSegmentShadowImage  = medfilt2(binSegmentShadowImage ,[3 3]);
-%figure; imshow(binSegmentShadowImage);
-
-% shadow edges extraction.
-sampleShadowEdges = extractEdges(binSegmentShadowImage);
-
-% after getting ymax and ymin in each of x coordinate, create center plane
-shadowRefPointClound(:,1) = sampleShadowEdges(:,1);    % x coordinate in 3D
-shadowRefPointClound(:,2) = sampleShadowEdges(:,2);    % y min edges in 3D
-shadowRefPointClound(:,3) = sampleShadowEdges(:,3);    % y max edge in 3D
-shadowRefPointClound(:,4) = 0;                   % z coordinate (this plane is ref plane)
 
 plot3(shadowRefPointClound(:,1), shadowRefPointClound(:,3), shadowRefPointClound(:,4), '.', 'LineWidth', 1);
 % plot virtual light position with respect to tower c and d
@@ -226,11 +229,15 @@ grid on;
 
 
 % find unit vector of centroid line from tail
-centroidHeadUnitVect = unitVector2D(double(centroidLine(size(centroidLine,1),1:2)), double(centroidLine(1,1:2)));
-pVect = [double(centroidLine(size(centroidLine,1),1)) double(centroidLine(size(centroidLine,1),2))] + 100*centroidHeadUnitVect;
-shadowUnitVect = unitVector2D([double(shadowRefPointClound(154,1)) double(shadowRefPointClound(154,3))], virLightPosIMG(1:2));
-sVect = [shadowRefPointClound(154,1), shadowRefPointClound(154,3)] + 1000*(shadowUnitVect*-1);          % -1 for inverse the ray (not sure).
-p_IT_shadowCentroid = rayintersect([double(shadowRefPointClound(154,1)), double(shadowRefPointClound(154,3))], double(centroidLine(size(centroidLine,1),1:2)), shadowUnitVect, centroidHeadUnitVect);
-plot3([double(shadowRefPointClound(154,1)) p_IT_shadowCentroid(1)], [double(shadowRefPointClound(154,3)) p_IT_shadowCentroid(2)], [0 0], '*-', 'LineWidth', 1, 'Color', 'g');
+% centroidHeadUnitVect = unitVector2D(double(centroidLine(size(centroidLine,1),1:2)), double(centroidLine(1,1:2)));
+% pVect = [double(centroidLine(size(centroidLine,1),1)) double(centroidLine(size(centroidLine,1),2))] + 100*centroidHeadUnitVect;
+% shadowUnitVect = unitVector2D([double(shadowRefPointClound(154,1)) double(shadowRefPointClound(154,3))], virLightPosIMG(1:2));
+% sVect = [shadowRefPointClound(154,1), shadowRefPointClound(154,3)] + 1000*(shadowUnitVect*-1);          % -1 for inverse the ray (not sure).
+% p_IT_shadowCentroid = rayintersect([double(shadowRefPointClound(154,1)), double(shadowRefPointClound(154,3))], double(centroidLine(size(centroidLine,1),1:2)), shadowUnitVect, centroidHeadUnitVect);
+% plot3([double(shadowRefPointCloufacend(154,1)) p_IT_shadowCentroid(1)], [double(shadowRefPointClound(154,3)) p_IT_shadowCentroid(2)], [0 0], '*-', 'LineWidth', 1, 'Color', 'g');
 
-%plot3([double(centroidLine(size(centroidLine,1),1)), centroidHeadUnitVect(1)], [double(centroidLine(size(centroidLine,1),2)), centroidHeadUnitVect(2)], [0 0], '*-', 'LineWidth', 1, 'Color', 'r');
+
+% calculate shadow length
+% 1st calculate direction vector (unit vector)
+sUVect = unitVector2D(double(sampleShadowEdgesLower(1,1:2)), virLightPosIMG(1:2)); 
+

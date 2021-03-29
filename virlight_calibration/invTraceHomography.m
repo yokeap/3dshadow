@@ -13,17 +13,28 @@ clear;
 close all;
 clc;
 
-homographyMatrix = ...
-[ -0.000001171027520  -0.000569119373972   0.402795558322037
-  -0.000571860777008  -0.000007045512653   0.915276425974051
-  -0.000000000072476  -0.000000017684098  -0.004914395139275];
+% homographyMatrix = ...
+% [ -0.000001171027520  -0.000569119373972   0.402795558322037
+%   -0.000571860777008  -0.000007045512653   0.915276425974051
+%   -0.000000000072476  -0.000000017684098  -0.004914395139275];
 
-% load instrincsic camera calibrated parameters
-load('../calibration/cameraParams.mat');
-% load computed homography matrix
+% homographyMatrix = ...
+%     [-1.923406815982628e-06,-5.164347311016744e-04,0.192943934722844;
+%     -5.617555953485216e-04,-1.940433835436591e-06,0.981195951656823;
+%     -7.321030736267486e-09,-1.093315495754124e-08,-0.005153661250271];
+
+% % load instrincsic camera calibrated parameters
+% load('../calibration/cameraParams.mat');
+% % load computed homography matrix
+
+% load intrinsic, extrinsic and homography matrix
+load('../20.09.2019/homographyParams.mat');
+
+homographyMatrix = H;
 
 % load distorted image
-imOrig = imread('../SampleImages/DSC_0309.JPG');
+%imOrig = imread('../SampleImages/background/01-03-2019.JPG');
+imOrig = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
 % get undistorting image and offset origin
 [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
 figure; imshow(im); title('Undistorted Image');
@@ -37,10 +48,20 @@ input_B = [ginput(2)'; [1 1]];
 input_C = [ginput(2)'; [1 1]];
 input_D = [ginput(2)'; [1 1]];
 
-input_B = nearestPointY(input_A,input_B);
-input_C = nearestPointX(input_B,input_C);
-input_D = nearestPointX(input_A,input_D);
-input_D = nearestPointY(input_C,input_D);
+% input_A = [1.742544871794872e+03,1.560673076923077e+03;3.653525641025626e+02,8.222499999999986e+02];
+% input_B = [4.200032051282052e+03,4.350852564102564e+03;3.653525641025626e+02,8.222499999999986e+02];
+% input_C = [4.200032051282052e+03,4.350852564102564e+03;3.004711538461538e+03,3.798737179487179e+03];
+% input_D = [1.742544871794872e+03,1.560673076923077e+03;3.022455128205128e+03,3.820916666666666e+03];
+
+% input_B = nearestPointY(input_A,input_B);
+% input_C = nearestPointX(input_B,input_C);
+% input_D = nearestPointX(input_A,input_D);
+% input_D = nearestPointY(input_C,input_D);
+
+% input_A = [input_A; [1 1]];
+% input_B = [input_B; [1 1]];
+% input_C = [input_C; [1 1]];
+% input_D = [input_D; [1 1]];
 
 plot(input_A(1,1:2), input_A(2, 1:2), '*-');
 hold on;
@@ -131,7 +152,7 @@ plot3(p_IT_ad(1), p_IT_ad(2), p_IT_ad(3), '*', 'LineWidth', 5, 'Color', 'y');
 % Vertical ray angle figure plot
 figure('Name','Elevation ray');
 hold on;
-view(90,0)  % YZ View
+view(0,0)  % YZ View
 plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1, 'Color', 'r');
 plot3([A(2,1) p_IT_ad(1) D(2,1)], [A(2,2) p_IT_ad(2) D(2,2)], [A(2,3) p_IT_ad(3) D(2,3)], '*-', 'LineWidth', 1, 'Color', 'g');
 grid on;
@@ -142,7 +163,7 @@ zlabel('Z')
 
 % Horizontal ray angle figure plot
 figure('Name','Azimuth ray');
-view(0,0)   % XZ View
+view(90,0)   % XZ View
 hold on;
 plot3([A(2,1) p_IT_ab(1) B(2,1)], [A(2,2) p_IT_ab(2) B(2,2)], [A(2,3) p_IT_ab(3) B(2,3)], '*-', 'LineWidth', 1, 'Color', 'b');
 plot3([C(2,1) p_IT_cd(1) D(2,1)], [C(2,2) p_IT_cd(2) D(2,2)], [C(2,3) p_IT_cd(3) D(2,3)], '*-', 'LineWidth', 1, 'Color', 'm');
@@ -151,7 +172,7 @@ xlabel('X')
 ylabel('Y')
 zlabel('Z')
 
-virLightPos = p_IT_cd;
+virLightPos = (p_IT_ab + p_IT_cd)/2;
 
 % azimuth triangle angle calculation
 az_u = computeMag(virLightPos(1:2), C(2,1:2));
@@ -169,10 +190,10 @@ grid on;
 xlabel('X')
 ylabel('Y')
 
-% elevation triangle angle calculation
+% elevation triangle angle calculation (*Note: in real world unit use x coordinate than y in image coordinate)
 ev_u = computeMag([virLightPos(1) virLightPos(3)], [D(2,1) D(2,3)]);
 ev_v = computeMag([virLightPos(1) virLightPos(3)], [A(2,1) A(2,3)]);
-ev_w = computeMag([D(2,1) D(2,3)], [A(2,1) A(2,3)]);
+ev_w = computeMag([D(2,1) D(2,1)], [A(2,3) A(2,3)]);
 elevation_a = acos((ev_u^2 + ev_w^2 - ev_v^2)/(2 * ev_u * ev_w));
 elevation_b = acos((ev_w^2 + ev_v^2 - ev_u^2)/(2 * ev_w * ev_v));
 elevation_c = acos((ev_v^2 + ev_u^2 - ev_w^2)/(2 * ev_v * ev_u));

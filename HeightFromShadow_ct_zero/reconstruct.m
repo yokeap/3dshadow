@@ -50,8 +50,8 @@ function [EdgesUpperWorld, EdgesLowerWorld, skeletonHeight] = reconstruct(homogr
                 plot3(EdgesLowerWorld(loop,1), EdgesLowerWorld(loop,2), 0 , '.-', 'LineWidth', 1);
                 Height(loop,1) = 0;
                 skeletonHeight(loop,:) = [EdgesLowerWorld(loop,:) 0];
-                disp(y)
-                disp(y:-1:1)
+                % disp(y)
+                % disp(y:-1:1)
                 for yy = y:-1:1      % scan for y(column)
                     flagHeight = 0;                            % flag for check loop (set when found shadow edge)
                     flagFoundSomeEdge = 0;

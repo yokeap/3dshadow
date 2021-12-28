@@ -127,21 +127,21 @@ imshow(binSegmentShadowImage);
 maxVal = max(skeleton(:, 3));
 % middleCloudLeft(:, 1) = sampleRefPointCloudWorldUpper(:, 1);
 % middleCloudLeft(:, 2) = sampleRefPointCloudWorldUpper(:, 2);
-middleCloudLeft(:, 3) = skeleton(:, 3)/2;
+middleCloudLeft(:, 3) = 0;
 
 % middleCloudRight(:, 1) = sampleRefPointCloudWorldLower(:, 1);
 % middleCloudRight(:, 2) = sampleRefPointCloudWorldLower(:, 2);
-middleCloudRight(:, 3) = skeleton(:, 3)/2;
+middleCloudRight(:, 3) = 0;
 
 % assigne height value to uppper clound
 upperCloud(:, 1) = skeleton(:, 1);
 upperCloud(:, 2) = skeleton(:, 2);
-upperCloud(:, 3) = skeleton(:, 3);
+upperCloud(:, 3) = skeleton(:, 3) / 2;
 
 % assigne height value to lower clound
 lowerCloud(:, 1) = skeleton(:, 1);
 lowerCloud(:, 2) = skeleton(:, 2);
-lowerCloud(:, 3) = 0;
+lowerCloud(:, 3) = upperCloud(:, 3) * -1;
 %lowerCloud(:, 3) = maxVal - skeleton(:, 3);
 
 figure('Name','3D Points Cloud (World)');

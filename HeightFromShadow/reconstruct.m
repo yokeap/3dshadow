@@ -35,10 +35,10 @@ function [EdgesUpperWorld, EdgesLowerWorld, skeletonHeight] = reconstruct(homogr
                 EdgesUpper(loop,3) = 1;    % add homogeneous coordinate 
                 EdgesUpperWorld(loop,:) = homographyTransform(homographyMatrix, [x;y;1])';
                 
-                EdgesLower(loop,1) = x;
-                EdgesLower(loop,2) = y;
-                EdgesLower(loop,3) = 1;    % add homogeneous coordinate 
-                EdgesLowerWorld(loop,:) = homographyTransform(homographyMatrix, [x;y;1])';
+%                 EdgesLower(loop,1) = x;
+%                 EdgesLower(loop,2) = y;
+%                 EdgesLower(loop,3) = 1;    % add homogeneous coordinate 
+%                 EdgesLowerWorld(loop,:) = homographyTransform(homographyMatrix, [x;y;1])';
                 plot3(EdgesUpperWorld(loop,1), EdgesUpperWorld(loop,2), 0 , '.-', 'LineWidth', 1);
             end
             % edge lower found 

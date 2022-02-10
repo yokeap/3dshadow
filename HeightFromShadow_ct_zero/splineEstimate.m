@@ -1,4 +1,4 @@
-function [splineXY, areaInsideSplineCurve] = splineEstimate(XY)
+function [splineXY] = splineEstimate(XY)
 
     XY = XY';
     % Append first point to last to close the curve

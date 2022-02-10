@@ -1,4 +1,4 @@
-function [EdgesUpperWorld, EdgesLowerWorld, skeletonHeight] = reconstruct(homographyMatrix, binSegmentImage, binSegmentShadowImage, virLightPosIMG, virLightPos, interpolateScalar)
+function [EdgesUpperWorld, EdgesLowerWorld, skeletonHeight] = reconstruct(homographyMatrix, binSegmentImage, MaskedSegmentRGBImage, binSegmentShadowImage, virLightPosIMG, virLightPos, interpolateScalar)
 %RECONSTRUCT Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,9 +12,11 @@ function [EdgesUpperWorld, EdgesLowerWorld, skeletonHeight] = reconstruct(homogr
     n = 1;
 
     % Sample skeletonization
-    skBinSegmentImage = bwskel(binSegmentImage);
+    %skBinSegmentImage = bwskel(binSegmentImage);
+%     [skBinSegmentImage, colorSegmentImage] = shadowEdgeOnObj(MaskedSegmentRGBImage);
+    [skBinSegmentImage, colorSegmentImage] = createMaskObj(MaskedSegmentRGBImage);
     figure('Name','Skeleton');
-    imshow(skBinSegmentImage)
+    imshow(skBinSegmentImage);
     
     figure('Name','3D Points Cloud');
     hold on;
@@ -65,6 +67,10 @@ function [EdgesUpperWorld, EdgesLowerWorld, skeletonHeight] = reconstruct(homogr
                         % interpolate the unit vector.
                         for s=1:interpolateScalar
                             Pt = [double(x), double(yy)] + s*(skeleton2LightUVect);
+                            if ((int32(Pt(1)) >= size(binSegmentShadowImage, 2)) || (int32(Pt(2)) >= size(binSegmentShadowImage, 1)))
+%                                 disp(size(binSegmentShadowImage, 2))
+                                break;
+                            end
                             % check value the interpolated position 
                             if flagHeight == 0 && (binSegmentShadowImage(int32(Pt(2)), int32(Pt(1))) > 0)
                                 flagHeight = 1;

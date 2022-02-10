@@ -53,7 +53,7 @@ imgSample = imread('../SampleImages/Fish Test/DSC_0331.JPG');
 diffImage = imsubtract(rgb2gray(imgBg), rgb2gray(imgSample));
 % convert to binary and filtering image.
 diffImageBW = imbinarize(diffImage,0.1);
-% choose largest of closed area 
+% choose largest of calosed area 
 diffImageBW = bwareafilt(diffImageBW, 1);
 figure('Name','Original');
 imshow(diffImageBW);
@@ -87,6 +87,8 @@ imshow(greenScreenImage);
 
 % color thresholding (HSV model)
 [binSegmentImage, MaskedSegmentRGBImage] = createEasyMaskFish(greenScreenImage);     
+figure('Name','MaskedSegmentRGBImage');
+imshow(MaskedSegmentRGBImage);
 %[binSegmentImage, MaskedSegmentRGBImage] = createEasyMaskMango(greenScreenImage); 
 % filtering for only 1 largest object
 binSegmentImage = bwareafilt(binSegmentImage, 1);             
@@ -122,9 +124,9 @@ imshow(binSegmentShadowImage);
 
 %% calculaling height from shadow
 
-[middleCloudLeft, middleCloudRight, skeleton] = reconstruct(homographyMatrix, binSegmentImage, binSegmentShadowImage, virLightPosIMG, virLightPos, 2000);
+[middleCloudLeft, middleCloudRight, shadowHeight] = reconstruct(homographyMatrix, binSegmentImage, MaskedSegmentRGBImage, binSegmentShadowImage, virLightPosIMG, virLightPos, 2000);
 
-maxVal = max(skeleton(:, 3));
+maxVal = max(shadowHeight(:, 3));
 % middleCloudLeft(:, 1) = sampleRefPointCloudWorldUpper(:, 1);
 % middleCloudLeft(:, 2) = sampleRefPointCloudWorldUpper(:, 2);
 middleCloudLeft(:, 3) = 0;
@@ -134,15 +136,17 @@ middleCloudLeft(:, 3) = 0;
 middleCloudRight(:, 3) = 0;
 
 % assigne height value to uppper clound
-upperCloud(:, 1) = skeleton(:, 1);
-upperCloud(:, 2) = skeleton(:, 2);
-upperCloud(:, 3) = skeleton(:, 3) / 2;
+upperCloud(:, 1) = shadowHeight(:, 1);
+upperCloud(:, 2) = shadowHeight(:, 2);
+upperCloud(:, 3) = shadowHeight(:, 3) / 2;
 
 % assigne height value to lower clound
-lowerCloud(:, 1) = skeleton(:, 1);
-lowerCloud(:, 2) = skeleton(:, 2);
+lowerCloud(:, 1) = shadowHeight(:, 1);
+lowerCloud(:, 2) = shadowHeight(:, 2);
 lowerCloud(:, 3) = upperCloud(:, 3) * -1;
 %lowerCloud(:, 3) = maxVal - skeleton(:, 3);
+
+
 
 figure('Name','3D Points Cloud (World)');
 hold on
@@ -176,18 +180,51 @@ totalVolume = 0;
 totalLength = middleCloudLeft(size(middleCloudLeft,1),2) - middleCloudLeft(1,2);
 % scan along x axis 
 for i=1:size(middleCloudLeft,1)
-    halfSlice_L(:, 1, i) = [upperCloud(i, 1), middleCloudLeft(i, 1), lowerCloud(i, 1)];
-    halfSlice_L(:, 2, i) = [upperCloud(i, 3), middleCloudLeft(i, 3), lowerCloud(i, 3)];
     
-    halfSlice_R(:, 1, i) = [lowerCloud(i, 1), middleCloudRight(i, 1), upperCloud(i, 1)];
-    halfSlice_R(:, 2, i) = [lowerCloud(i, 3), middleCloudRight(i, 3), upperCloud(i, 3)];
+%     halfSlice_R(:, 1, i) = [lowerCloud(i, 1), middleCloudRight(i, 1), upperCloud(i, 1)];
+%     halfSlice_R(:, 2, i) = [lowerCloud(i, 3), middleCloudRight(i, 3), upperCloud(i, 3)];
     
+    if abs(middleCloudRight(i, 1) - upperCloud(i, 1)) < abs(middleCloudLeft(i, 1) - upperCloud(i, 1))
+%         mirrorUpperXPosFrom_R = middleCloudLeft(i, 1) + abs(middleCloudRight(i, 1) - upperCloud(i, 1));
+        halfSliceUpper(:, 1, i) = [middleCloudRight(i, 1), upperCloud(i, 1), mirrorUpperXPosFrom_R, middleCloudLeft(i, 1)];
+        halfSliceUpper(:, 2, i) = [middleCloudRight(i, 3), upperCloud(i, 3), upperCloud(i, 3), middleCloudLeft(i, 3)];
+    else
+        mirrorUpperXPosFrom_L = middleCloudRight(i, 1) - abs(middleCloudLeft(i, 1) - upperCloud(i, 1));
+        halfSliceUpper(:, 1, i) = [middleCloudRight(i, 1), mirrorUpperXPosFrom_L, upperCloud(i, 1), middleCloudLeft(i, 1)];
+        halfSliceUpper(:, 2, i) = [middleCloudRight(i, 3), upperCloud(i, 3), upperCloud(i, 3), middleCloudLeft(i, 3)];
+    end
+    
+    
+    if abs(middleCloudRight(i, 1) - lowerCloud(i, 1)) < abs(middleCloudLeft(i, 1) - lowerCloud(i, 1))
+        mirrorLowerXPosFrom_R = middleCloudLeft(i, 1) + abs(middleCloudRight(i, 1) - lowerCloud(i, 1));
+        halfSliceLower(:, 1, i) = [middleCloudLeft(i, 1), mirrorLowerXPosFrom_R, lowerCloud(i, 1), middleCloudRight(i, 1)];
+        halfSliceLower(:, 2, i) = [middleCloudLeft(i, 3), lowerCloud(i, 3), lowerCloud(i, 3), middleCloudRight(i, 3)];
+    else
+        mirrorLowerXPosFrom_L = middleCloudRight(i, 1) - abs(middleCloudLeft(i, 1) - lowerCloud(i, 1));
+        halfSliceLower(:, 1, i) = [middleCloudLeft(i, 1), lowerCloud(i, 1), mirrorLowerXPosFrom_L, middleCloudRight(i, 1)];
+        halfSliceLower(:, 2, i) = [middleCloudLeft(i, 3), lowerCloud(i, 3), lowerCloud(i, 3), middleCloudRight(i, 3)];
+    end
+    
+%     halfSliceUpper(:, 1, i) = [middleCloudRight(i, 1), upperCloud(i, 1), mirrorUpperXPosFrom_R, middleCloudLeft(i, 1)];
+%     halfSliceUpper(:, 2, i) = [middleCloudRight(i, 3), upperCloud(i, 3), upperCloud(i, 3), middleCloudLeft(i, 3)];
+%     
+%     halfSliceLower(:, 1, i) = [middleCloudLeft(i, 1), mirrorLowerXPosFrom_R, lowerCloud(i, 1), middleCloudRight(i, 1)];
+%     halfSliceLower(:, 2, i) = [middleCloudLeft(i, 3), lowerCloud(i, 3), lowerCloud(i, 3), middleCloudRight(i, 3)];
+    
+    
+    
+    
+%     mirrorUpperCloudFrom_R = [mirrorXPosFrom_R, upperCloud(i, 3)]; 
+%     mirrorLowerCloudFrom_R = [mirrorXPosFrom_R, lowerCloud(i, 3)]; 
+    
+%     halfSlice_L(:, 1, i) = [mirrorUpperXPosFrom_R, middleCloudLeft(i, 1), mirrorLowerXPosFrom_R];
+%     halfSlice_L(:, 2, i) = [upperCloud(i, 3), middleCloudLeft(i, 3), lowerCloud(i, 3)];
     
      %spline interpolation
-     sliceModel_L(:,2:3,i) = splineEstimate(halfSlice_L(:,:,i));
-     sliceModel_R(:,2:3,i) = splineEstimate(halfSlice_R(:,:,i));
+     sliceModel_Upper(:,2:3,i) = splineEstimate(halfSliceUpper(:,:,i));
+     sliceModel_Lower(:,2:3,i) = splineEstimate(halfSliceLower(:,:,i));
      
-     sliceModel(:,2:3,i) = [sliceModel_L(:,2:3,i); sliceModel_R(:,2:3,i)];
+     sliceModel(:,2:3,i) = [sliceModel_Upper(:,2:3,i); sliceModel_Lower(:,2:3,i)];
     
      
 %      sliceModelRaw(:,2:3,i) = [upperCloud(i, 1), upperCloud(i, 3);...
@@ -231,10 +268,26 @@ for i=1:size(middleCloudLeft,1)
     sliceZ = [sliceZ; sliceModel(:,3,i)];
 end
 
+figure('Name', 'Upper Slice');
+hold on;
+plot(halfSliceUpper(:, 1, 50), halfSliceUpper(:, 2, 50), 'r.');
+grid on;
+
+% figure('Name', 'Right Slice');
+% hold on;
+% plot(halfSliceUpper(:, 1, 50), halfSliceUpper(:, 2, 50), 'r.');
+% grid on;
+% 
+% figure('Name', 'Left Slice');
+% hold on;
+% plot(halfSliceUpper(:, 1, 50), halfSliceLower(:, 2, 50), 'r.');
+% grid on;
+
 figure('Name','3D Point Cloud');
 %plot3(leftSliceX,leftSliceY,leftSliceZ, 'r.');
 plot3(sliceX,sliceY,sliceZ);
-hold on
+hold on;
+
 %plot3(rightSliceX,rightSliceY,rightSliceZ, 'b.');
 xlabel('X (mm)','FontSize',20,'FontWeight','bold');
 ylabel('Y (mm)','FontSize',20,'FontWeight','bold');
@@ -264,6 +317,6 @@ figure('Name', '2D Cross section');
 title(['Area = ' num2str(sliceModelArea(sliceNumber,2))]);
 hold on;
 plot(sliceModel(:,2,sliceNumber), sliceModel(:,3,sliceNumber), 'r.');
-
+grid on
 % figure('Name', '2D Cross section test');
 % plot(sliceModelRaw(:,2,sliceNumber), sliceModelRaw(:,3,sliceNumber), 'r.');

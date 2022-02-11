@@ -5,9 +5,9 @@ clc;
 load('../20.09.2019/cameraParams.mat');
 %imOrig = imread('../sampleImages/background/01-03-2019.JPG');
 %imOrig = imread('../sampleImages/Fish Test/DSC_0332.JPG');
-% [filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'File Selector');
-imOrig = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
-% imOrig = strcat(pathname, filename);
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'File Selector');
+% imOrig = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
+imOrig = imread(strcat(pathname, filename));
 
 %magnification = 25;
 [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');

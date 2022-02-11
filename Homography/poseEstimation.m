@@ -7,8 +7,10 @@
 clear;
 clc;
 
-load('../20.09.2019/homographyParams.mat');
+% load('../20.09.2019/homographyParams.mat');
 
+[filename, pathname] = uigetfile({'*.mat'},'File Selector');
+load(strcat(pathname, filename));
 % H = [ -0.000001171027520  -0.000569119373972   0.402795558322037
 %   -0.000571860777008  -0.000007045512653   0.915276425974051
 %   -0.000000000072476  -0.000000017684098  -0.004914395139275];

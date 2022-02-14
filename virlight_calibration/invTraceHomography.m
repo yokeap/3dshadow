@@ -28,13 +28,17 @@ clc;
 % % load computed homography matrix
 
 % load intrinsic, extrinsic and homography matrix
-load('../20.09.2019/homographyParams.mat');
+% load('../20.09.2019/homographyParams.mat');
+[filename, pathname] = uigetfile({'*.mat'},'Select homographyParams.mat','../experiment');
+load(strcat(pathname, filename));
 
 homographyMatrix = H;
 
 % load distorted image
 %imOrig = imread('../SampleImages/background/01-03-2019.JPG');
-imOrig = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
+% imOrig = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'load square pilla image','../experiment');
+imOrig = imread(strcat(pathname, filename));
 % get undistorting image and offset origin
 [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
 figure; imshow(im); title('Undistorted Image');
@@ -69,6 +73,7 @@ plot(input_B(1,1:2), input_B(2, 1:2), '*-');
 plot(input_C(1,1:2), input_C(2, 1:2), '*-');
 plot(input_D(1,1:2), input_D(2, 1:2), '*-');
 hold off;
+savefig(strcat(pathname, 'marks-shadow.fig'));
 
 P1=homographyTransform(homographyMatrix,input_A(:,1));
 S1=homographyTransform(homographyMatrix,input_A(:,2));
@@ -89,6 +94,7 @@ plot([P2(1,1) S2(1,1)],[P2(2,1) S2(2,1)],'*-', 'Color', 'g');
 plot([P3(1,1) S3(1,1)],[P3(2,1) S3(2,1)],'*-', 'Color', 'b');
 plot([P4(1,1) S4(1,1)],[P4(2,1) S4(2,1)],'*-', 'Color', 'y');
 hold off;
+savefig(strcat(pathname, 'marks-shadow-length(top).fig'));
 
 % rearrange the matrix
 A = [P1 S1 P1; [0 0 52]]';
@@ -147,23 +153,26 @@ plot3(p_IT_ab(1), p_IT_ab(2), p_IT_ab(3), '*', 'LineWidth', 5, 'Color', 'r');
 plot3(p_IT_bc(1), p_IT_bc(2), p_IT_bc(3), '*', 'LineWidth', 5, 'Color', 'g');
 plot3(p_IT_cd(1), p_IT_cd(2), p_IT_cd(3), '*', 'LineWidth', 5, 'Color', 'b');
 plot3(p_IT_ad(1), p_IT_ad(2), p_IT_ad(3), '*', 'LineWidth', 5, 'Color', 'y');
+hold off;
+savefig(strcat(pathname, '3d-lightsource-position.fig'));
 
 
 % Vertical ray angle figure plot
 figure('Name','Elevation ray');
 hold on;
-view(0,0)  % YZ View
+view(0,0)  % XZ View
 plot3([B(2,1) p_IT_bc(1) C(2,1)], [B(2,2) p_IT_bc(2) C(2,2)], [B(2,3) p_IT_bc(3) C(2,3)], '*-', 'LineWidth', 1, 'Color', 'r');
 plot3([A(2,1) p_IT_ad(1) D(2,1)], [A(2,2) p_IT_ad(2) D(2,2)], [A(2,3) p_IT_ad(3) D(2,3)], '*-', 'LineWidth', 1, 'Color', 'g');
 grid on;
 xlabel('X')
 ylabel('Y')
 zlabel('Z')
-
+hold off;
+savefig(strcat(pathname, 'lightsource-position(sideview).fig'));
 
 % Horizontal ray angle figure plot
 figure('Name','Azimuth ray');
-view(90,0)   % XZ View
+view(90,0)   % YZ View
 hold on;
 plot3([A(2,1) p_IT_ab(1) B(2,1)], [A(2,2) p_IT_ab(2) B(2,2)], [A(2,3) p_IT_ab(3) B(2,3)], '*-', 'LineWidth', 1, 'Color', 'b');
 plot3([C(2,1) p_IT_cd(1) D(2,1)], [C(2,2) p_IT_cd(2) D(2,2)], [C(2,3) p_IT_cd(3) D(2,3)], '*-', 'LineWidth', 1, 'Color', 'm');
@@ -171,6 +180,8 @@ grid on;
 xlabel('X')
 ylabel('Y')
 zlabel('Z')
+hold off;
+savefig(strcat(pathname, 'lightsource-position(frontview).fig'));
 
 virLightPos = (p_IT_ab + p_IT_cd)/2;
 
@@ -189,6 +200,8 @@ plot([C(2,1) virLightPos(1) D(2,1)], [D(2,2) virLightPos(2) C(2,2)], '*-', 'Line
 grid on;
 xlabel('X')
 ylabel('Y')
+hold off;
+savefig(strcat(pathname, 'lightsource-position(topview).fig'));
 
 % elevation triangle angle calculation (*Note: in real world unit use x coordinate than y in image coordinate)
 ev_u = computeMag([virLightPos(1) virLightPos(3)], [D(2,1) D(2,3)]);
@@ -204,6 +217,8 @@ plot([A(2,1) virLightPos(1) D(2,1)], [A(2,3) virLightPos(3) D(2,3)], '*-', 'Line
 grid on;
 xlabel('X')
 ylabel('Z')
+hold off;
+savefig(strcat(pathname, 'lightsource-position(sideview).fig'));
 
     % nearing the x coordinat make them perfectly square
     function exact = nearestPointY(origin,compare)

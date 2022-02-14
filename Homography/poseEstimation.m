@@ -8,8 +8,8 @@ clear;
 clc;
 
 % load('../20.09.2019/homographyParams.mat');
-
-[filename, pathname] = uigetfile({'*.mat'},'File Selector');
+% load homography parameters 
+[filename, pathname] = uigetfile({'*.mat'},'homographyParams.mat','../experiment');
 load(strcat(pathname, filename));
 % H = [ -0.000001171027520  -0.000569119373972   0.402795558322037
 %   -0.000571860777008  -0.000007045512653   0.915276425974051
@@ -18,7 +18,12 @@ load(strcat(pathname, filename));
 %load('cameraParams.mat');
 
 %img = imread('undistorted.jpg');
-img = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
+
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'load image','../experiment');
+img = imread(strcat(pathname, filename));
+% img = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
+
+[img, newOrigin] = undistortImage(img, cameraParams, 'OutputView', 'full');
 
 %input from user
 imshow(img);

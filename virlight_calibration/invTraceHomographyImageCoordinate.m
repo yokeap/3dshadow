@@ -24,13 +24,17 @@ clc;
 % input_D = [1.570409115138593e+03,1.413454957356077e+03;3.174579690831556e+03,3.713314232409381e+03];
 
 % load instrincsic camera calibrated parameters
-load('../calibration/cameraParams.mat');
+% load('../calibration/cameraParams.mat');
+[filename, pathname] = uigetfile({'*.mat'},'Select homographyParams.mat','../experiment');
+load(strcat(pathname, filename));
 % load computed homography matrix
 
 % load distorted image
-imOrig = imread('../SampleImages/background/01-03-2019.JPG');
+% imOrig = imread('../SampleImages/background/01-03-2019.JPG');
 % get undistorting image and offset origin
-[im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
+% [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'load square pilla image','../experiment');
+imOrig = imread(strcat(pathname, filename));
 figure; imshow(im); title('Undistorted Image');
 axis image;
 axis ij ;

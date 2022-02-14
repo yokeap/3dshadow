@@ -2,14 +2,27 @@ close all;
 clear;
 clc;
 
-load('../20.09.2019/cameraParams.mat');
+% load('../20.09.2019/cameraParams.mat');
 %imOrig = imread('../sampleImages/background/01-03-2019.JPG');
 %imOrig = imread('../sampleImages/Fish Test/DSC_0332.JPG');
-[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'File Selector');
+
 % imOrig = imread('../20.09.2019/Pillas/Picture 2019-09-20 22-07-18.PNG');
+
+
+
+
+%%%%  using file selector %%%%
+
+% load camera calibrated parameters
+[filename, pathname] = uigetfile({'*.mat'},'Select calibration.mat','../experiment');
+load(strcat(pathname, filename));
+
+% load square pattern 
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'load square pattern image','../experiment');
 imOrig = imread(strcat(pathname, filename));
 
 %magnification = 25;
+% undistort image
 [im, newOrigin] = undistortImage(imOrig, cameraParams, 'OutputView', 'full');
 %figure; imshow(im, 'InitialMagnification', magnification);
 figure; imshow(im);

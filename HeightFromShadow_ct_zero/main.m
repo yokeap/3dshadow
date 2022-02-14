@@ -10,18 +10,23 @@ clc;
 %     -7.321030736267486e-09,-1.093315495754124e-08,-0.005153661250271];
 
 %fish test
-homographyMatrix = ...
-       [5.079053647431133e-06,-5.475219832828209e-04,0.224511299503042;
-       -5.494275672572568e-04,-1.011837140387550e-06,0.974457649498132;
-       1.174112215996749e-08,-1.921899063852394e-08,-0.005134593677710];
+% homographyMatrix = ...
+%        [5.079053647431133e-06,-5.475219832828209e-04,0.224511299503042;
+%        -5.494275672572568e-04,-1.011837140387550e-06,0.974457649498132;
+%        1.174112215996749e-08,-1.921899063852394e-08,-0.005134593677710];
+
+[filename, pathname] = uigetfile({'*.mat'},'Select session.mat','../experiment');
+load(strcat(pathname, filename));
+
+
 
 % virtual light source position
 % virLightPos = [-3.313541624802504e+02,1.452013369124612e+02,4.402924880599082e+02];
 % virLightPosIMG = [3.085196493165559e+03,-2.939137269817536e+03,4.361294010244374e+02];
 
 %fish test
-virLightPos = [-3.313541624802504e+02,1.452013369124612e+02,4.402924880599082e+02];
-virLightPosIMG = [3.085196493165559e+03,-2.939137269817536e+03,4.361294010244374e+02];
+% virLightPos = [-3.313541624802504e+02,1.452013369124612e+02,4.402924880599082e+02];
+% virLightPosIMG = [3.085196493165559e+03,-2.939137269817536e+03,4.361294010244374e+02];
  
 % azimuth triangle (XY) or top view in radian
 % azimuth_a = 1.3456;
@@ -38,14 +43,18 @@ virLightPosIMG = [3.085196493165559e+03,-2.939137269817536e+03,4.361294010244374
 % elevation_c = 0.6963;
 
  % load intrinsic camera calibrated parameters
-load('../calibration/cameraParams.mat');
+% load('../calibration/cameraParams.mat');
 
 % load background image.
 %imgBg = imread('../SampleImages/background/01-03-2019.JPG');
-imgBg = imread('../SampleImages/Fish Test/DSC_0332.JPG');
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'load background image','../experiment');
+imgBg = imread(strcat(pathname, filename));
+% imgBg = imread('../SampleImages/Fish Test/DSC_0332.JPG');
 % load sample image.
 %imgSample = imread('../SampleImages/01-03-2019/DSC_0319.JPG');
-imgSample = imread('../SampleImages/Fish Test/DSC_0331.JPG');
+[filename, pathname] = uigetfile({'*.png';'*.jpg';'*.bmp'},'load object image','../experiment');
+imgBg = imread(strcat(pathname, filename));
+% imgBg = imread('../SampleImages/Fish Test/DSC_0331.JPG');
 
 %% pre-processing image procedure
 
